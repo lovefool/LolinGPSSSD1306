@@ -27,6 +27,7 @@ String json;
 int count = 0;
 String counter;         // counter increment every second
 
+/*** Remove nRF24L01 part 2023.12.20
 #include <SPI.h>          // include SPI library
 #include <RF24.h>         // include RF24 library
 RF24 radio(D3, D8);       // associate radio with RF24 library
@@ -40,6 +41,8 @@ typedef struct          // define data structure to include
   int sigCount;         // signal counter
 } dataStruct;
 dataStruct data;          // name the data structure as data
+***/
+
 int LEDpin = D1;          // define LED pin
 int LED = 0;          // LED turned off
 int interval = 1;         // (interval+1)s between transmissions
@@ -52,11 +55,14 @@ void setup()
   while (WiFi.status() != WL_CONNECTED) delay(500); // wait for Wi-Fi connect
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());   // display web server IP address
+  
   server.begin();         // initialise server
   server.on("/", base);       // call base function as webpage loaded
   server.on("/GPSurl", GPSfunct);   // call GPSfunct with GPSurl loaded
   server.on("/countUrl", countFunct);
   delay(500);
+
+  /*** Remove nRF24L01 part
   radio.begin();          // start radio
   radio.setChannel(50);       // set channel number,
   radio.setDataRate(RF24_2MBPS);    // baud rate and
@@ -64,6 +70,8 @@ void setup()
   radio.setAutoAck(true);     // set auto-acknowledge (default is true)
   radio.openWritingPipe(addresses[0]);  // initiate data transmit pipe
   radio.stopListening();      // set nRF24L01 module as transmitter
+  ***/
+
   pinMode(LEDpin, OUTPUT);      // define LEDpin as OUTPUT
 }
 
@@ -85,12 +93,13 @@ void GPSfunct()       // function to transmit GPS position data
     Serial.println(json);
     if(GPSsend > interval)        // transmit every (interval+1)s
     {
+      /*** 
       data.GPSlat = GPSlat;     // convert GPS readings to data structure
       data.GPSlong = GPSlong;
       data.GPSalt = GPSalt;
       data.GPSspd = GPSspd;
-      data.sigCount++;          // increment signal counter
-      radio.write(&data, sizeof(data));   // transmit signal as data structure
+      data.sigCount++;          // increment signal counterX      radio.write(&data, sizeof(data));   // transmit signal as data structure
+      ***/ 
       GPSsend = 0;          // reset GPS send counter
       flashLED();
     }
