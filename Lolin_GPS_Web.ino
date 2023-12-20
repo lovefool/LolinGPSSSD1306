@@ -1,21 +1,25 @@
 /*******************************************************************************
- * Sketch name: nRF24L01 transmit signal with position data and display on webpage
+ * Sketch name: GPS position data and display on webpage (SoftAP)
  * Description: display on webpage GPS latitude and longitude values -  see Listing 12-4
- * Created on:  October 2020
- * Author:      Neil Cameron
+ * Created on:  2023.12.20
+ * Author:      JTE
  * Book:        Electronics Projects with the ESP8266 and ESP32
  * Chapter :    12 - GPS tracking app with Google Maps
  ******************************************************************************/
 
-#include <ESP8266WiFi.h>      // include ESP8266 Wi-Fi and
+// #include <ESP8266WiFi.h>      // include ESP8266 Wi-Fi and
 #include <ESP8266WebServer.h>     // webserver libraries
 ESP8266WebServer server;      // associate server with library
-char ssid[] = "xxxx";       // change xxxx to your Wi-Fi SSID
-char password[] = "xxxx";     // change xxxx to your Wi-Fi password
+char ssid[] = "ESP-Tracker";       // change xxxx to your Wi-Fi SSID
+char password[] = "12345678";     // change xxxx to your Wi-Fi password
+IPAddress local_ip(192,168,50,1);
+IPAddress gateway(192,168,50,1);
+IPAddress subnet(255,255,255,0);
+
 #include "buildpage.h"        // webpage HTML code
 
 #include <SoftwareSerial.h>     // include SoftwareSerial library
-SoftwareSerial SoftSer(D4, D0);   // associate SoftSer with SoftwareSerial
+SoftwareSerial SoftSer(D4, D0);   // associate SoftSer with SoftwareSerial to GPS
                                 // SoftwareSerial mySerial (rxPin, txPin);
 
 #include <NMEAGPS.h>        // include NeoGPS library
@@ -23,6 +27,7 @@ NMEAGPS nmea;         // associate nmea with NMEAGPS lib
 gps_fix gps;          // associate gps with NMEAGPS library
 float GPSlat, GPSlong, GPSalt, GPSspd;    // real numbers for GPS location
 int GPSsend = 0;            // GPS send counter
+
 String json;
 int count = 0;
 String counter;         // counter increment every second
@@ -51,10 +56,17 @@ void setup()
 {
   Serial.begin(115200);       // define Serial Monitor baud rate
   SoftSer.begin(9600);        // serial connection to GPS module
-  WiFi.begin(ssid, password);     // initialise Wi-Fi
-  while (WiFi.status() != WL_CONNECTED) delay(500); // wait for Wi-Fi connect
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());   // display web server IP address
+  
+  // WiFi.begin(ssid, password);     // initialise Wi-Fi
+  // while (WiFi.status() != WL_CONNECTED) delay(500); // wait for Wi-Fi connect
+  
+  WiFi.mode(WIFI_AP);
+  delay(1000);
+  WiFi.softAP(ssid,password);
+  WiFi.softAPConfig(local_ip, gateway, subnet);
+
+  // Serial.print("IP address: ");
+  // Serial.println(WiFi.localIP());   // display web server IP address
   
   server.begin();         // initialise server
   server.on("/", base);       // call base function as webpage loaded
