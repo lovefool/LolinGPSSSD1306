@@ -48,7 +48,8 @@ typedef struct          // define data structure to include
 dataStruct data;          // name the data structure as data
 ***/
 
-int LEDpin = D1;          // define LED pin
+// int LEDpin = D1;          // define LED pin
+int LEDpin = BUILTIN_LED;          // define LED pin
 int LED = 0;          // LED turned off
 int interval = 1;         // (interval+1)s between transmissions
 
